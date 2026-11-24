@@ -1,0 +1,14 @@
+# the built binary
+/udin-register
+/udin-register-attestation-guard
+
+# a register made while trying the tool out; never commit a real one
+*-data.json
+udin-register-data.json
+
+# editor and operating system leftovers
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/

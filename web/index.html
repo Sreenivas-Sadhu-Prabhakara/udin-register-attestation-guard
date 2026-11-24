@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; form-action 'self'">
+<title>UDIN register for CA firms · Open MSME</title>
+<meta name="description" content="A local register of every attested document, with the UDIN generation deadline counted from the date of signing.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script src="assets/theme-init.js"></script>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/accent.css">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="brand"><span class="dot"></span> UDIN register <span class="tag">Open MSME</span></span>
+    <span class="sp"></span>
+    <span class="tag" id="data-file" title="Where this register is kept"></span>
+    <button class="themer" type="button" data-themer>Theme</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow">Professional services · India</p>
+    <h1>UDIN register and generation deadline for every document you sign</h1>
+    <p class="lede">One register of every certificate, audit report and attestation: who signed it, for which client and financial year, against which figures, and whether its UDIN exists yet. The deadline is counted from the date of signing.</p>
+    <div class="who">
+      <span class="pill reg">ICAI UDIN mandate</span>
+      <span class="pill" id="pill-window"></span>
+      <span class="pill">Stays on this machine</span>
+    </div>
+  </section>
+
+  <div class="note" id="not-a-generator">
+    <strong>This tool does not generate UDINs, and cannot.</strong> Only ICAI's portal issues a UDIN, and only the signing member can log in and generate one. There is no connection to the portal here and no automation of it: this register records the number you generated and counts the days. A number that passes its shape check is not thereby a real UDIN — only verification on the portal can tell you that.
+    <span id="portal-url"></span>
+  </div>
+
+  <section class="card">
+    <h2>What is outstanding</h2>
+    <div class="tiles" id="tiles"></div>
+    <div class="toolbar">
+      <div class="seg" id="filters"></div>
+      <div class="toolbar-right">
+        <label class="sr-only" for="search">Search the register</label>
+        <input type="text" id="search" placeholder="Client, document, UDIN, partner" autocomplete="off">
+        <a class="btn ghost" id="export" href="/api/export.csv" download>Export CSV</a>
+      </div>
+    </div>
+    <p class="assumptions" id="board-summary"></p>
+    <div id="rows" class="rows"></div>
+  </section>
+
+  <div class="cols calc">
+
+    <section class="card">
+      <h2 id="form-heading">Record a signed document</h2>
+      <form id="entry-form" autocomplete="off">
+        <input type="hidden" id="entry-id">
+
+        <div class="row2">
+          <div class="field">
+            <label for="category">UDIN category</label>
+            <select id="category" required></select>
+          </div>
+          <div class="field">
+            <label for="signedOn">Date of signing</label>
+            <input type="date" id="signedOn" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="documentType">Document <span class="hint">as the portal lists it</span></label>
+          <input type="text" id="documentType" list="documentTypes" required maxlength="160">
+          <datalist id="documentTypes"></datalist>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label for="clientName">Client</label>
+            <input type="text" id="clientName" list="clients" required maxlength="160">
+            <datalist id="clients"></datalist>
+          </div>
+          <div class="field">
+            <label for="clientRef">PAN, GSTIN or client code <span class="hint">optional</span></label>
+            <input type="text" id="clientRef" maxlength="120">
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label for="financialYear">Financial year <span class="hint">1 April to 31 March</span></label>
+            <input type="text" id="financialYear" placeholder="2025-26" maxlength="12">
+            <p class="hint" id="fy-echo"></p>
+          </div>
+          <div class="field">
+            <label for="eFilingSubmittedOn">Submitted on the e-filing portal <span class="hint">optional</span></label>
+            <input type="date" id="eFilingSubmittedOn">
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label for="partnerName">Engagement partner</label>
+            <input type="text" id="partnerName" list="partners" maxlength="160">
+            <datalist id="partners"></datalist>
+          </div>
+          <div class="field">
+            <label for="partnerMrn">Membership number</label>
+            <input type="text" id="partnerMrn" placeholder="304576" maxlength="20">
+          </div>
+        </div>
+
+        <fieldset class="group">
+          <legend>The UDIN, once you have generated it</legend>
+          <p class="hint" id="udin-hint">Leave this empty until the number exists. This tool cannot generate it; generate it on the ICAI portal and enter it here.</p>
+          <div class="field">
+            <label for="udin">UDIN <span class="hint">18 characters</span></label>
+            <input type="text" id="udin" placeholder="26304576AKTSBN1359" maxlength="40" spellcheck="false">
+            <p class="hint" id="udin-check"></p>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="generatedOn">Generated on</label>
+              <input type="date" id="generatedOn">
+            </div>
+            <div class="field">
+              <label for="generatedTime">Time <span class="hint">optional, for the revocation window</span></label>
+              <input type="time" id="generatedTime">
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="description">Document description <span class="hint">as keyed on the portal</span></label>
+          <textarea id="description" rows="2" maxlength="250"></textarea>
+          <p class="hint" id="description-count"></p>
+        </div>
+
+        <fieldset class="group">
+          <legend>Figures the UDIN was generated against</legend>
+          <p class="hint">Nothing is uploaded to the portal, so these figures are the only link between the number and this version of the document.</p>
+          <div id="figures"></div>
+          <button class="btn ghost small" type="button" id="add-figure">Add a figure</button>
+        </fieldset>
+
+        <div class="field check">
+          <label><input type="checkbox" id="inCirculation"> The signed document has gone out to the client, a bank or a regulator</label>
+        </div>
+
+        <div class="field">
+          <label for="notes">Note <span class="hint">optional</span></label>
+          <textarea id="notes" rows="2" maxlength="2000"></textarea>
+        </div>
+
+        <div class="btnrow">
+          <button class="btn primary" type="submit">Save to the register</button>
+          <button class="btn ghost" type="button" id="clear-form">Clear</button>
+          <button class="btn ghost" type="button" id="delete-entry" hidden>Remove this entry</button>
+        </div>
+        <p class="form-error" id="form-error" role="status"></p>
+      </form>
+    </section>
+
+    <section class="card sticky" id="detail">
+      <h2>Selected entry</h2>
+      <p class="assumptions" id="detail-empty">Choose an entry from the register, or save one, to see its deadline, its findings and what to do next.</p>
+      <div id="detail-body" hidden>
+        <div class="result-primary">
+          <div class="k" id="detail-stage"></div>
+          <div class="v" id="detail-days"></div>
+          <div class="sub" id="detail-headline"></div>
+        </div>
+        <table class="breakdown" id="detail-table"></table>
+        <ul class="flags" id="detail-flags"></ul>
+        <p class="assumptions" id="detail-next"></p>
+
+        <details id="revoke-box">
+          <summary>Record a revocation</summary>
+          <p class="hint" id="revoke-hint"></p>
+          <div class="field">
+            <label for="revokedOn">Revoked on the portal</label>
+            <input type="date" id="revokedOn">
+          </div>
+          <div class="field">
+            <label for="revokeReason">Reason <span class="hint">as entered on the portal</span></label>
+            <textarea id="revokeReason" rows="2" maxlength="500"></textarea>
+          </div>
+          <div class="field">
+            <label for="replacementUdin">Replacement UDIN <span class="hint">if the document was reissued</span></label>
+            <input type="text" id="replacementUdin" maxlength="40" spellcheck="false">
+          </div>
+          <div class="btnrow">
+            <button class="btn primary" type="button" id="revoke">Record the revocation</button>
+          </div>
+          <p class="form-error" id="revoke-error" role="status"></p>
+        </details>
+
+        <div id="recall-box" hidden>
+          <div class="field check">
+            <label><input type="checkbox" id="recalled"> The document has been taken back from whoever held it</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <section class="card">
+    <h2>Paste a list of signed documents</h2>
+    <p class="assumptions">One document per line, from a spreadsheet or a plain list. With no header row the columns are read as <code>client, document, date of signing, UDIN, date the UDIN was generated</code>. A header row lets you put them in any order. Dates may be written 05-04-2026 or 2026-04-05.</p>
+    <div class="row2">
+      <div class="field">
+        <label for="paste-category">Category for these documents</label>
+        <select id="paste-category"></select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="paste-text">The list</label>
+      <textarea id="paste-text" rows="6" spellcheck="false" placeholder="Sundaram Textiles Private Limited&#9;Statutory audit report&#9;10-09-2026&#10;Anand Traders&#9;Turnover certificate&#9;01-10-2026"></textarea>
+    </div>
+    <div class="btnrow">
+      <button class="btn ghost" type="button" id="paste-preview">Read the list</button>
+      <button class="btn primary" type="button" id="paste-commit" hidden>Add these to the register</button>
+    </div>
+    <div id="paste-result"></div>
+  </section>
+
+  <section class="card">
+    <h2>The windows this register counts</h2>
+    <form id="settings-form" autocomplete="off">
+      <div class="field">
+        <label for="firmName">Firm <span class="hint">appears on the export</span></label>
+        <input type="text" id="firmName" maxlength="160">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="generationWindowDays">Generation window, days from signing</label>
+          <input type="number" id="generationWindowDays" min="2" max="365" required>
+        </div>
+        <div class="field">
+          <label for="warnDays">Start warning this many days before</label>
+          <input type="number" id="warnDays" min="1" max="364" required>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="eFilingWindowDays">E-filing UDIN update, days from submission</label>
+          <input type="number" id="eFilingWindowDays" min="1" max="365" required>
+        </div>
+        <div class="field">
+          <label for="revocationWindowHours">Portal revocation window, hours</label>
+          <input type="number" id="revocationWindowHours" min="1" max="8760" required>
+        </div>
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" type="submit">Save the windows</button>
+        <button class="btn ghost" type="button" id="reset-settings">Back to the reference values</button>
+      </div>
+      <p class="form-error" id="settings-error" role="status"></p>
+    </form>
+    <details class="assumptions" id="sources">
+      <summary>Where each figure comes from</summary>
+      <ul id="sources-list"></ul>
+    </details>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Open MSME · free tools for small businesses. Nothing here leaves your machine.</span>
+    <span id="foot-note"></span>
+  </div>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

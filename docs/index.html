@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; form-action 'self'">
+<title>UDIN register and attestation guard · Open MSME</title>
+<meta name="description" content="A free, offline register of every attested document for a practising CA firm: UDIN, client, financial year, figures, engagement partner, and the days left to generate each UDIN.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script src="assets/theme-init.js"></script>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/accent.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="brand"><span class="dot"></span> UDIN register <span class="tag">Open MSME</span></span>
+    <span class="sp"></span>
+    <a class="home" href="https://sreenivas-sadhu-prabhakara.github.io/openmsme/">All tools</a>
+    <button class="themer" type="button" data-themer>Theme</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow">Professional &amp; business services · India</p>
+    <h1>UDIN register and generation-deadline tracker for practising CA firms</h1>
+    <p class="lede">Every certificate, audit report and attestation your firm signs, in one register: the UDIN, the client, the financial year, the figures the number was generated against, and the engagement partner who signed. It counts the days left to generate each UDIN, keeps revoked numbers visible, and runs on your own machine.</p>
+    <div class="who">
+      <span class="pill reg">ICAI UDIN mandate</span>
+      <span class="pill">60 days from signing</span>
+      <span class="pill">Practising CA firms</span>
+      <span class="pill">Article and audit staff</span>
+      <span class="pill">Offline, single binary</span>
+    </div>
+  </section>
+
+  <div class="cols">
+    <div class="prose">
+
+      <h2>What it does</h2>
+      <p>A firm that signs attestations keeps a register of them, or it cannot answer a question about one. This tool is that register, and it adds the clock the spreadsheet never had.</p>
+      <ul>
+        <li>Records each signed document: category, document type, client and reference, financial year, date of signing, engagement partner and membership number, the document description keyed on the portal, and the figures the UDIN was generated against.</li>
+        <li>Counts the generation window from the date of signing and shows what is outstanding: signed with no UDIN, approaching the deadline, and past it.</li>
+        <li>Checks the shape of a UDIN as it is entered, and cross-checks it against the document: a number generated under another member's membership number, or in a year the window never reached, is flagged.</li>
+        <li>Keeps revoked numbers in the register, with the reason, the replacement number and whether the document has been taken back — and says plainly when a document is still in circulation under a revoked UDIN.</li>
+        <li>Runs the second, shorter clock as well: a document submitted on the income-tax e-filing portal before its UDIN existed has to have the UDIN updated there within 15 calendar days, and that deadline usually falls long before the sixty days from signing.</li>
+        <li>Exports the whole register as CSV, revoked and missing entries included, which is what "produce your UDIN register" means in practice.</li>
+      </ul>
+
+      <h2>Who it's for</h2>
+      <p>Practising chartered accountants and their firms — sole practitioners, partnerships and the article and audit staff who fill the register in. It suits a firm that signs anything from a handful to a few thousand attestations a year and currently tracks them across a spreadsheet, an email thread and somebody's memory.</p>
+      <p>Members of the other institutes keep their own UDIN disciplines with their own windows. The rules implemented here are ICAI's, and the windows are settings you can change, so a CS or CMA practice can use the same register against its own figures after confirming them.</p>
+
+      <h2>The rule it implements</h2>
+      <p>The <strong>Unique Document Identification Number (UDIN)</strong> is an 18-character number generated on ICAI's portal for every document certified or attested by a full-time practising chartered accountant. It was made mandatory in phases, by the decision of the ICAI Council at its 379th meeting of 17–18 December 2018:</p>
+      <ul>
+        <li>all certificates from <strong>1 February 2019</strong>;</li>
+        <li>all GST and tax audit reports from <strong>1 April 2019</strong>;</li>
+        <li>all other audit, assurance and attestation functions from <strong>1 July 2019</strong>.</li>
+      </ul>
+      <p>A UDIN is to be generated <strong>at the time of signing</strong>. Where that did not happen, the ICAI announcement of <strong>17 September 2021</strong> — the Council's decision at its 405th meeting — allows it to be generated within <strong>60 days</strong> of signing, in place of the 15 days that applied before, aligning the window with SQC 1 and SA 230 on assembly of the audit file. The FAQ on UDIN is explicit that <strong>both the date of signing and the date of generation count towards those sixty days</strong>: a document signed on 1 January 2024 had until 29 February 2024, not 1 March. Where a regulator or other stakeholder needs the UDIN on signing or inside a shorter period, the member provides it then.</p>
+      <p>A generated UDIN can be <strong>revoked on the portal only within 48 hours</strong> of generation, per the announcement of 23 June 2023 following the Council's 420th meeting. After that the portal tells anyone verifying the number that it can no longer be revoked; a member who missed the window generates a fresh UDIN inside the generation window instead, and a revoked UDIN cannot be generated again against the old signing date beyond that window.</p>
+      <p>Separately, the CBDT's press release on the e-filing portal's integration with ICAI states that where a chartered accountant could not generate a UDIN before submitting a form, the portal permits the submission subject to the UDIN being updated against that form <strong>within 15 calendar days</strong> of submission; if it is not, the uploaded report or certificate is treated as an invalid submission.</p>
+      <p>What is at stake: not generating a UDIN where it is mandatory amounts to non-adherence to a Council decision, and the FAQ states that it may attract disciplinary proceedings under the Second Schedule, Part II of the Chartered Accountants Act, 1949.</p>
+
+      <h2>Install &amp; run</h2>
+      <pre><code>git clone https://github.com/sreenivas-sadhu-prabhakara/udin-register-attestation-guard.git
+cd udin-register-attestation-guard
+go build -o udin-register .
+./udin-register
+
+# or without building first
+go run .
+
+# a register of your own, somewhere of your choosing
+./udin-register -data ~/firm/udin-register-2026.json
+
+# then open
+http://127.0.0.1:8080</code></pre>
+      <p>One binary, no dependencies beyond the Go toolchain to build it, nothing to install and nothing to configure. Copy the binary onto the machine that holds the register and run it there.</p>
+
+      <h2>What it stores</h2>
+      <p>One JSON file, written where you point <code>-data</code> and nowhere else: by default <code>./udin-register-data.json</code> in the folder you run it from. Each save replaces the file atomically, so an interrupted write leaves the previous register intact, and the file is written readable by its owner only.</p>
+      <p>Nothing leaves the machine. The tool makes no outbound network connection of any kind — no telemetry, no update check, and no connection to the UDIN portal or to any other server. It listens on 127.0.0.1 unless you deliberately tell it otherwise, so nothing on the network can reach it either. Back it up the way you back up the rest of the firm's working papers.</p>
+      <p>That local file is the point rather than a limitation. ICAI archives UDINs a year after generation, and the portal is reached only through the signing member's own login. A query about a three-year-old engagement is answered from the firm's own register or not at all.</p>
+
+      <h2>How a document moves through it</h2>
+      <ol class="steps">
+        <li>Paste the week's signed documents, or enter one: client, document, date of signing, partner.</li>
+        <li>The register shows the deadline and the days left, counted from the signing date with both ends included.</li>
+        <li>Generate the UDIN yourself on ICAI's portal — this tool cannot, and will say so.</li>
+        <li>Enter the number and the date it was generated. The shape is checked and the membership number is matched against the partner on record.</li>
+        <li>If the document was wrong, revoke the number on the portal within 48 hours and record the revocation here, with its reason and the replacement number.</li>
+        <li>Export the register as CSV whenever somebody asks what you signed, and for whom.</li>
+      </ol>
+
+      <h2>Features</h2>
+      <div class="featgrid">
+        <div class="feat">
+          <h3>The register itself</h3>
+          <p>Every attested document with its UDIN, client, financial year, assessment year, figures and engagement partner. Nothing is ever deleted once it carries a number.</p>
+        </div>
+        <div class="feat">
+          <h3>Deadline arithmetic that is right</h3>
+          <p>Calendar-correct across leap days, month ends and the 1 April financial-year boundary, counting both the signing day and the day of generation the way the FAQ says to.</p>
+        </div>
+        <div class="feat">
+          <h3>Two clocks, not one</h3>
+          <p>The 60 days from signing, and the 15 days from an e-filing submission. The register shows whichever binds first and names the rule it came from.</p>
+        </div>
+        <div class="feat">
+          <h3>Shape check on a UDIN</h3>
+          <p>18 characters, the two-digit year, the six-digit membership number and the random part — checked against ICAI's documented syntax, and cross-checked against the partner who signed.</p>
+        </div>
+        <div class="feat">
+          <h3>Revocation that stays visible</h3>
+          <p>Reason, replacement number, the 48-hour portal window, and a standing flag while a document is in circulation under a revoked UDIN.</p>
+        </div>
+        <div class="feat">
+          <h3>Paste a list</h3>
+          <p>Tab, comma or pipe separated, with or without a header row, day-first dates read the Indian way. Everything the parser could not take in is reported line by line.</p>
+        </div>
+        <div class="feat">
+          <h3>Alerts worth having</h3>
+          <p>Signed with no UDIN, deadline close, window closed, revoked and still out, and records that do not add up — each one a view you can click.</p>
+        </div>
+        <div class="feat">
+          <h3>Windows you can change</h3>
+          <p>60 days, 15 days, 48 hours and the early-warning period are settings, each shown beside the announcement it comes from, because council decisions change.</p>
+        </div>
+      </div>
+
+      <div class="note">
+        <p><strong>This tool does not generate UDINs, and cannot.</strong> Only ICAI's portal at udin.icai.org issues a UDIN, and only the signing member can log in and generate one. There is no integration here, no automation of the portal, and no connection to it: the tool records the number you generated and counts the days. Nothing it shows is a UDIN, and a number that passes its shape check is not thereby a real one — ICAI publishes no check digit, so no arithmetic can tell a well-formed invention from a genuine number. Only verification on the portal can.</p>
+        <p>The windows and dates above are stated as they stood when this page was written, with the announcement behind each one named so you can check it. They are indicative, not advice: confirm the current position at udin.icai.org before you rely on a date, and change the setting in the tool if ICAI has moved it. This is a register and a reminder, not an opinion on whether a UDIN was required for a particular engagement.</p>
+      </div>
+
+      <details class="assumptions">
+        <summary>The figures this tool holds in one place</summary>
+        <ul>
+          <li><strong>60 days</strong> — generation window from the date of signing. ICAI announcement of 17 September 2021 (Council, 405th meeting), replacing 15 days.</li>
+          <li><strong>Both ends counted</strong> — the FAQ on UDIN states that the date of signing and the date of generation are both included in the time allowed, so the deadline is the signing date plus 59 days.</li>
+          <li><strong>15 calendar days</strong> — to update a UDIN against a form already submitted on the income-tax e-filing portal. CBDT press release on UDIN validation at the portal. Where the release does not say whether the submission date itself counts, this tool counts it, which is the earlier of the two readings.</li>
+          <li><strong>48 hours</strong> — the portal's revocation window from the time of generation. ICAI announcement of 23 June 2023 (Council, 420th meeting).</li>
+          <li><strong>1 February, 1 April and 1 July 2019</strong> — the phased dates from which a UDIN became mandatory for certificates, for GST and tax audit reports, and for all other audit, assurance and attestation functions. ICAI Council, 379th meeting of 17–18 December 2018.</li>
+          <li><strong>18 characters</strong> — a UDIN is two digits of the year of generation, six digits of ICAI membership number and ten characters generated at random, documented as six letters then four digits.</li>
+          <li><strong>5 to 250 characters</strong> — the document description the portal asks for, which this register keeps alongside the number.</li>
+        </ul>
+      </details>
+
+    </div>
+  </div>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Open MSME · free, offline tools for small businesses in India and the Philippines. MIT licensed.</span>
+    <span><a href="https://sreenivas-sadhu-prabhakara.github.io/openmsme/">All tools</a> · <a href="https://github.com/sreenivas-sadhu-prabhakara/udin-register-attestation-guard">Source</a></span>
+  </div>
+</footer>
+
+<script src="assets/ui.js"></script>
+</body>
+</html>
